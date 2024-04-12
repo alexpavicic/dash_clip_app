@@ -28,14 +28,6 @@ def readFileImages(strFolderName):
 
 folder_path = os.path.join(os.getcwd(), "airplane")
 image_list = readFileImages(folder_path)
-print("List of images:", image_list)
-
-# Check if the image_list is not empty before accessing its elements
-if image_list:
-    image = image_list[1]
-    print("Selected image:", image)
-else:
-    print("No images found in the folder.")
 
 # Load the model
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -45,6 +37,7 @@ model, preprocess = clip.load('ViT-B/32', device)
 for i in range(10):  # Loop for the first 10 elements
     image_path = image_list[i]
     image = Image.open(image_path)
+    print("Selected image:", image_path)
 
     image_input = preprocess(image).unsqueeze(0).to(device)
     text_inputs = torch.cat([clip.tokenize(f"a photo of a {c}") for c in class_folders]).to(device)
