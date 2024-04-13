@@ -26,9 +26,6 @@ def readFileImages(strFolderName):
 
     return image_list    
 
-folder_path = os.path.join(os.getcwd(), "airplane")
-image_list = readFileImages(folder_path)
-
 # Load the model
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load('ViT-B/32', device)
