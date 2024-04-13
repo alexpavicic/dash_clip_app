@@ -66,7 +66,6 @@ for class_folder in class_folders:
 
 # Check if the top prediction matches the class folder
         predicted_class = class_folders[indices[0]]  # Get the predicted class folder
-        actual_class = os.path.basename(os.path.normpath(image_path))  # Get the actual class folder from the image path
 
 # Check if the top prediction matches the actual class folder
         if predicted_class == class_folder:
