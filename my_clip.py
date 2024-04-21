@@ -37,6 +37,9 @@ with open('results.csv', 'w', newline='') as csvfile:
         fieldnames.extend([f'Predicted_Class_{i}', f'Prediction_Accuracy_{i}'])
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
+   
+    assets_folder_path = os.path.join(os.getcwd(), "assets")
+    os.chdir(assets_folder_path)
 
     for class_folder in class_folders:
         folder_path = os.path.join(os.getcwd(), class_folder)
