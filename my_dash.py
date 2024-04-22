@@ -7,7 +7,7 @@ from dash import dcc, html
 import csv
 import pandas as pd
 import plotly.express as px
-from dash import dcc
+
 
 app = dash.Dash(__name__)
 
