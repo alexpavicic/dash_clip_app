@@ -70,7 +70,6 @@ melted_df = pd.melt(results_df, id_vars=['Actual_Class'], value_vars=['Correct_P
 fig = px.bar(melted_df, x="Actual_Class", y="Count", color="Prediction",
              barmode='group', title="Correct vs Incorrect Predictions by Class")
 
-# Set the layout of the app to include the dropdown, selected class, and images container
 # Set the layout of the app to include the dropdown, graph, selected class, and images container
 app.layout = html.Div([
     dcc.Dropdown(
@@ -93,6 +92,7 @@ app.layout = html.Div([
      dash.dependencies.Output('results-graph', 'figure')],
     [dash.dependencies.Input('class-dropdown', 'value')]
 )
+
 def update_output_and_images(selected_class):
     if selected_class:
         # Update the selected class message
@@ -104,7 +104,33 @@ def update_output_and_images(selected_class):
         for image_file in image_files:
             pil_image = Image.open(os.path.join(f'assets/{selected_class}', image_file))
             image_base64 = pil_image_to_base64(pil_image)
-            image_components.append(html.Img(src=f"data:image/png;base64,{image_base64}"))
+            
+            # Read the CSV file to get the predicted class for the current image
+            df_results = pd.read_csv('results.csv')
+            
+            # Drop rows with NaN values in the 'Image_Path' column
+            df_results = df_results.dropna(subset=['Image_Path'])
+            
+            # Filter DataFrame to find rows containing the image file path
+            filtered_rows = df_results[df_results['Image_Path'].str.contains(image_file)]
+            
+            # Check if there are any matching rows and if they contain non-null predicted classes
+            if not filtered_rows.empty and not filtered_rows['Predicted_Class_1'].isnull().all():
+                predicted_class = filtered_rows['Predicted_Class_1'].iloc[0]
+                
+                actual_class = selected_class
+                if actual_class == predicted_class:
+                    # Add a green border or background to indicate correct classification
+                    image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
+                                                      style={'border': '2px solid green', 'padding': '10px'}))
+                else:
+                    # Add a red border or background to indicate incorrect classification
+                    image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
+                                                      style={'border': '2px solid red', 'padding': '10px'}))
+            else:
+                # If no matching rows or all predicted classes are null, treat as incorrect classification
+                image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
+                                                  style={'border': '2px solid red', 'padding': '10px'}))
 
         # Update the graph based on selected class
         filtered_df = results_df[results_df['Actual_Class'] == selected_class]
