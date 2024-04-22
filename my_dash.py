@@ -7,6 +7,7 @@ from dash import dcc, html
 import csv
 import pandas as pd
 import plotly.express as px
+from dash import dcc
 
 app = dash.Dash(__name__)
 
@@ -121,12 +122,28 @@ def update_output_and_images(selected_class):
                 actual_class = selected_class
                 if actual_class == predicted_class:
                     # Add a green border or background to indicate correct classification
-                    image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
-                                                      style={'border': '2px solid green', 'padding': '10px'}))
+                    border_color = 'green'
                 else:
                     # Add a red border or background to indicate incorrect classification
-                    image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
-                                                      style={'border': '2px solid red', 'padding': '10px'}))
+                    border_color = 'red'
+                
+                # Extract predicted classes and their confidence scores
+                predictions = {}
+                for i in range(1, 6):
+                    pred_class_col = f'Predicted_Class_{i}'
+                    confidence_col = f'{i}'
+                    predictions[filtered_rows.iloc[0][pred_class_col]] = filtered_rows.iloc[0][confidence_col]
+
+                # Create HTML content to display predicted classes and confidence scores
+                predictions_html = ''
+                for pred_class, confidence_score in predictions.items():
+                    predictions_html += f'{pred_class}: {confidence_score}  '
+                
+                # Add image with border and predictions HTML to image components
+                image_components.append(html.Div([
+                    html.Img(src=f"data:image/png;base64,{image_base64}"),
+                    html.Div(html.Div(predictions_html), style={'margin-top': '10px'})
+                ], style={'border': f'2px solid {border_color}', 'padding': '10px', 'margin-bottom': '20px'}))
             else:
                 # If no matching rows or all predicted classes are null, treat as incorrect classification
                 image_components.append(html.Div(html.Img(src=f"data:image/png;base64,{image_base64}"),
@@ -142,6 +159,7 @@ def update_output_and_images(selected_class):
         return selected_class_message, image_components, updated_fig
     else:
         return 'Please select a class.', None, None
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
